@@ -18,11 +18,12 @@ jobs:
       - name: 安装 hydro
         run: |
           sudo whoami
-          sudo LANG=zh bash <(curl https://hydro.ac/setup.sh)
+          sudo curl -O https://hydro.ac/setup.sh
+          sudo bash setup.sh
       - name: SU
         run: |
-          hydrooj cli user setSuperAdmin 1
-          hydrooj cli user setPassword 1 ${{ secrets.password }}
+          sudo hydrooj cli user setSuperAdmin 1
+          sudo hydrooj cli user setPassword 1 ${{ secrets.password }}
       - name: Install and run Cpolar
         run: |
           wget https://www.cpolar.com/static/downloads/install-release-cpolar.sh
