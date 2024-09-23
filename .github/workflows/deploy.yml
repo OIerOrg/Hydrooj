@@ -48,6 +48,15 @@ jobs:
           else
             echo "Application is live at: $TUNNEL_URL" >> README.md
           fi
+      - name: Update README with Cpolar URL
+        run: |
+          TUNNEL_URL=$(head -n 1 tunnel_url.txt)
+
+          if grep -q "Application is live at:" README.md; then
+            sed -i "s#Application is live at: .*#Application is live at: $TUNNEL_URL#g" README.md
+          else
+            echo "Application is live at: $TUNNEL_URL" >> README.md
+          fi
       - name: Stay
         run: |
           sleep 21000
