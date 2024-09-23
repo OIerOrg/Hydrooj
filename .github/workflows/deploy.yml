@@ -18,7 +18,7 @@ jobs:
       - name: 安装 hydro
         run: |
           sudo su
-          LANG=zh . <(curl https://hydro.ac/setup.sh)
+          LANG=zh bash <(curl https://hydro.ac/setup.sh)
       - name: SU
         run: |
           hydrooj cli user setSuperAdmin 1
