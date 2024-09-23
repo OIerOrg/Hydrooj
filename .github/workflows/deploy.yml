@@ -48,10 +48,6 @@ jobs:
           else
             echo "Application is live at: $TUNNEL_URL" >> README.md
           fi
-      - name: Commit and push changes
+      - name: Stay
         run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          git add README.md
-          git commit -m "Update README with Cpolar URL"
-          git push
+          sleep 21000
