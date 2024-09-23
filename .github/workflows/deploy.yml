@@ -30,7 +30,7 @@ jobs:
           chmod +x install-release-cpolar.sh
           sudo ./install-release-cpolar.sh
           cpolar authtoken ${{ secrets.CPOLAR_TOKEN }}
-          nohup cpolar http -region=cn_top -log=stdout 5000 > cpolar_tunnel_log.txt 2>&1 &
+          nohup cpolar http -region=cn_top -log=stdout 80 > cpolar_tunnel_log.txt 2>&1 &
       - name: Monitor tunnel log for URL
         run: |
           sleep 30 
