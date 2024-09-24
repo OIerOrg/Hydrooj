@@ -9,35 +9,21 @@ on:
     - cron: '0 */6 * * *'  # 每 6 小时触发一次
 
 jobs:
-  checkout:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-  install_hydro:
-    runs-on: ubuntu-latest
-    needs: checkout
-    steps:
       - name: 安装 hydro
         run: |
           sudo whoami
           sudo curl -O https://hydro.ac/setup.sh
           sudo bash setup.sh
-
-  set_super_admin:
-    runs-on: ubuntu-latest
-    needs: install_hydro
-    steps:
       - name: SU
         run: |
           sudo hydrooj cli user setSuperAdmin 1
           sudo hydrooj cli user setPassword 1 ${{ secrets.password }}
-
-  install_cpolar:
-    runs-on: ubuntu-latest
-    needs: set_super_admin
-    steps:
       - name: Install and run Cpolar
         run: |
           wget https://www.cpolar.com/static/downloads/install-release-cpolar.sh
@@ -45,35 +31,17 @@ jobs:
           sudo ./install-release-cpolar.sh
           cpolar authtoken ${{ secrets.CPOLAR_TOKEN }}
           nohup cpolar http -region=cn_top -log=stdout 80 > cpolar_tunnel_log.txt 2>&1 &
-
-  monitor_tunnel:
-    runs-on: ubuntu-latest
-    needs: install_cpolar
-    steps:
       - name: Monitor tunnel log for URL
         run: |
           sleep 30 
           TUNNEL_URL=$(grep -o 'https://[0-9a-z]*\.[0-9a-z]*\.cpolar\.top' cpolar_tunnel_log.txt)
           echo "$TUNNEL_URL" > tunnel_url.txt
-          
-      - name: Upload Tunnel URL
-        uses: actions/upload-artifact@v2
-        with:
-          name: tunnel-url
-          path: tunnel_url.txt
-
-  update_readme:
-    runs-on: ubuntu-latest
-    needs: monitor_tunnel
-    steps:
-      - name: Download Tunnel URL
-        uses: actions/download-artifact@v2
-        with:
-          name: tunnel-url
-
+          echo "--------------------------------"
+          cat tunnel_url.txt
+          echo "--------------------------------"
       - name: Update README with Cpolar URL
         run: |
-          TUNNEL_URL=$(cat tunnel_url.txt)
+          TUNNEL_URL=$(head -n 1 tunnel_url.txt)
 
           if grep -q "Application is live at:" README.md; then
             sed -i "s#Application is live at: .*#Application is live at: $TUNNEL_URL#g" README.md
@@ -81,6 +49,13 @@ jobs:
             echo "Application is live at: $TUNNEL_URL" >> README.md
           fi
 
+          TUNNEL_URL=$(head -n 1 tunnel_url.txt)
+
+          if grep -q "Application is live at:" README.md; then
+            sed -i "s#Application is live at: .*#Application is live at: $TUNNEL_URL#g" README.md
+          else
+            echo "Application is live at: $TUNNEL_URL" >> README.md
+          fi
       - name: Commit and push changes
         run: |
           git config --global user.name 'GitHub Actions'
@@ -88,11 +63,6 @@ jobs:
           git add README.md
           git commit -m "Update README with Cpolar URL"
           git push
-
-  stay_alive:
-    runs-on: ubuntu-latest
-    needs: update_readme
-    steps:
       - name: Stay
         run: |
           sleep 21000
