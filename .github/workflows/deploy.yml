@@ -55,17 +55,25 @@ jobs:
           sleep 30 
           TUNNEL_URL=$(grep -o 'https://[0-9a-z]*\.[0-9a-z]*\.cpolar\.top' cpolar_tunnel_log.txt)
           echo "$TUNNEL_URL" > tunnel_url.txt
-          echo "--------------------------------"
-          cat tunnel_url.txt
-          echo "--------------------------------"
+          
+      - name: Upload Tunnel URL
+        uses: actions/upload-artifact@v2
+        with:
+          name: tunnel-url
+          path: tunnel_url.txt
 
   update_readme:
     runs-on: ubuntu-latest
     needs: monitor_tunnel
     steps:
+      - name: Download Tunnel URL
+        uses: actions/download-artifact@v2
+        with:
+          name: tunnel-url
+
       - name: Update README with Cpolar URL
         run: |
-          TUNNEL_URL=$(head -n 1 tunnel_url.txt)
+          TUNNEL_URL=$(cat tunnel_url.txt)
 
           if grep -q "Application is live at:" README.md; then
             sed -i "s#Application is live at: .*#Application is live at: $TUNNEL_URL#g" README.md
