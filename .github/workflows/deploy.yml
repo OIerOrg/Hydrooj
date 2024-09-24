@@ -41,21 +41,9 @@ jobs:
           echo "--------------------------------"
       - name: Update README with Cpolar URL
         run: |
-          TUNNEL_URL=$(head -n 1 tunnel_url.txt)
-
-          if grep -q "Application is live at:" README.md; then
-            sed -i "s#Application is live at: .*#Application is live at: $TUNNEL_URL#g" README.md
-          else
-            echo "Application is live at: $TUNNEL_URL" >> README.md
-          fi
-
-          TUNNEL_URL=$(head -n 1 tunnel_url.txt)
-
-          if grep -q "Application is live at:" README.md; then
-            sed -i "s#Application is live at: .*#Application is live at: $TUNNEL_URL#g" README.md
-          else
-            echo "Application is live at: $TUNNEL_URL" >> README.md
-          fi
+          echo "# Hydrooj" > README.md
+          echo "[![Deploy Chat Application](https://github.com/zjx-kimi/Hydrooj/actions/workflows/deploy.yml/badge.svg)](https://github.com/zjx-kimi/Hydrooj/actions/workflows/deploy.yml)" >> README.md
+          echo "网址：$TUNNEL_URL" >> README.md
       - name: Commit and push changes
         run: |
           git config --global user.name 'GitHub Actions'
