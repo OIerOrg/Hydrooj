@@ -15,15 +15,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: 安装 hydro
         run: |
           sudo whoami
           sudo curl -O https://hydro.ac/setup.sh
           sudo bash setup.sh
+
       - name: SU
         run: |
           sudo hydrooj cli user setSuperAdmin 1
           sudo hydrooj cli user setPassword 1 ${{ secrets.password }}
+
       - name: Install and run Cpolar
         run: |
           wget https://www.cpolar.com/static/downloads/install-release-cpolar.sh
@@ -31,19 +34,26 @@ jobs:
           sudo ./install-release-cpolar.sh
           cpolar authtoken ${{ secrets.CPOLAR_TOKEN }}
           nohup cpolar http -region=cn_top -log=stdout 80 > cpolar_tunnel_log.txt 2>&1 &
+          
       - name: Monitor tunnel log for URL
         run: |
           sleep 30 
-          TUNNEL_URL=$(grep -o 'https://[0-9a-z]*\.[0-9a-z]*\.cpolar\.top' cpolar_tunnel_log.txt)
+          TUNNEL_URL=$(grep -o 'https://[a-zA-Z0-9.-]*\.cpolar\.top' cpolar_tunnel_log.txt || echo "URL not found")
+          if [ "$TUNNEL_URL" == "URL not found" ]; then
+            echo "Error: Tunnel URL not found in logs"
+            exit 1
+          fi
           echo "$TUNNEL_URL" > tunnel_url.txt
           echo "--------------------------------"
           cat tunnel_url.txt
           echo "--------------------------------"
+
       - name: Update README with Cpolar URL
         run: |
           echo "# Hydrooj" > README.md
           echo "[![Deploy Chat Application](https://github.com/zjx-kimi/Hydrooj/actions/workflows/deploy.yml/badge.svg)](https://github.com/zjx-kimi/Hydrooj/actions/workflows/deploy.yml)" >> README.md
-          echo "网址：$TUNNEL_URL" >> README.md
+          echo "网址：$(cat tunnel_url.txt)" >> README.md
+
       - name: Commit and push changes
         run: |
           git config --global user.name 'GitHub Actions'
@@ -51,6 +61,7 @@ jobs:
           git add README.md
           git commit -m "Update README with Cpolar URL"
           git push
+
       - name: Stay
         run: |
           sleep 21000
