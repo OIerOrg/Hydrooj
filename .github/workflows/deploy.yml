@@ -52,7 +52,7 @@ jobs:
         run: |
           echo "# Hydrooj" > README.md
           echo "[![Deploy Chat Application](https://github.com/zjx-kimi/Hydrooj/actions/workflows/deploy.yml/badge.svg)](https://github.com/zjx-kimi/Hydrooj/actions/workflows/deploy.yml)" >> README.md
-          echo "网址：$(cat tunnel_url.txt)" >> README.md
+          echo "网址：$(head -n 1 tunnel_url.txt)" >> README.md
 
       - name: Commit and push changes
         run: |
